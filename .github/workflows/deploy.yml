@@ -19,4 +19,4 @@ jobs:
           ssh-keyscan your_server_ip >> ~/.ssh/known_hosts
 
       - name: Deploy to Server
-        run: ssh ubuntu@your_server_ip "cd /home/ubuntu/flask_app && git pull && sudo systemctl restart flask_app"
+        run: ssh ubuntu@138.2.123.118 "cd /home/ubuntu/flask_app && git pull && sudo systemctl restart flask_app"
