@@ -1,0 +1,39 @@
+name: Update README
+
+on:
+  push:
+    branches:
+      - main # main 브랜치에 푸시될 때 실행
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get recent commits
+        id: commits
+        run: |
+          COMMITS=$(git log --pretty=format:"- %s (%h)" -n 5) # 최근 5개 커밋 메시지 가져오기
+          echo "::set-output name=list::$COMMITS"
+      - name: Update README
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const commits = context.steps.commits.outputs.list;
+            let readme = `## Recent Commits
+
+            ${commits}
+
+            ---
+
+            ${fs.readFileSync('./README.md', 'utf8')}`; // 기존 README 내용 유지
+            fs.writeFileSync('./README.md', readme);
+            await github.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: './README.md',
+              message: 'Update README with recent commits',
+              content: readme,
+              sha: context.repo.default_branch, // SHA를 명시해야 커밋이 정상적으로 수행됨
+            });

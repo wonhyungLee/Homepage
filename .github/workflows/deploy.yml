@@ -1,4 +1,4 @@
-name: Deploy Flask App
+name: Deploy to Oracle Cloud
 
 on:
   push:
@@ -9,14 +9,25 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Install SSH Key
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan your_server_ip >> ~/.ssh/known_hosts
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
 
-      - name: Deploy to Server
-        run: ssh ubuntu@158.180.84.84 "cd /home/ubuntu/flask_app && git pull && sudo systemctl restart flask_app"
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+
+    - name: Run tests (optional)
+      run: |
+        source venv/bin/activate
+        python -m unittest discover
+
+    - name: Deploy to Oracle Cloud (manual step)
+      run: |
+        echo "Trigger deployment via webhook or manual script"
